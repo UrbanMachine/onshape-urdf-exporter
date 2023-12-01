@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "onshape-urdf-exporter"
+version = "0.1.0"
+description = ""
+authors = ["Urban Machine <info@urbanmachine.build>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "onshape_urdf_exporter"}]
+
+[tool.poetry.scripts]
+onshape_urdf_exporter = "onshape_urdf_exporter.__main__:main"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+requests = "^2.31.0"
+numpy = "^1.26.2"
+colorama = "^0.4.6"
+numpy-stl = "^3.1.1"
+commentjson = "^0.9.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.11.0"
+isort = "^5.12.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"

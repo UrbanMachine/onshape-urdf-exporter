@@ -5,21 +5,21 @@ onshape
 Provides access to the Onshape REST API
 """
 
-from . import utils
-
+import base64
+import datetime
+import hashlib
+import hmac
 import os
 import random
 import string
-import commentjson as json
-import hmac
-import hashlib
-import base64
 import urllib
-import datetime
+from urllib.parse import parse_qs, urlparse
+
+import commentjson as json
 import requests
-from colorama import Fore, Back, Style
-from urllib.parse import urlparse
-from urllib.parse import parse_qs
+from colorama import Back, Fore, Style
+
+from . import utils
 
 __all__ = ["Onshape"]
 

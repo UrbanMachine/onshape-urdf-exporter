@@ -5,15 +5,16 @@ client
 Convenience functions for working with the Onshape API
 """
 
-from .onshape import Onshape
-
+import hashlib
 import mimetypes
+import os
 import random
 import string
-import os
-import commentjson as json
-import hashlib
 from pathlib import Path
+
+import commentjson as json
+
+from .onshape import Onshape
 
 
 def escape_url(s):

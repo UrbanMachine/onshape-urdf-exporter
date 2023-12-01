@@ -1,11 +1,13 @@
-from collections import defaultdict
 import math
-from sys import exit
-import numpy as np
 import uuid
-from .onshape_api.client import Client
+from collections import defaultdict
+from sys import exit
+
+import numpy as np
+from colorama import Back, Fore, Style
+
 from .config import config, configFile
-from colorama import Fore, Back, Style
+from .onshape_api.client import Client
 
 # OnShape API client
 workspaceId = None
@@ -168,7 +170,8 @@ def assignParts(root, parent):
             occurrence["assignation"] = parent
 
 
-from .features import init as features_init, getLimits
+from .features import getLimits
+from .features import init as features_init
 
 features_init(client, config, root, workspaceId, assemblyId)
 
@@ -452,7 +455,10 @@ for occurrence in occurrences.values():
 
 # If a sub-assembly is suppressed, we also mark as suppressed the parts in this sub-assembly
 for occurrence in occurrences.values():
-    if not occurrence["instance"]["suppressed"]:
+    if (
+        "suppressed" in occurrence["instance"]
+        and not occurrence["instance"]["suppressed"]
+    ):
         for k in range(len(occurrence["path"]) - 1):
             upper_path = tuple(occurrence["path"][0 : k + 1])
             if (

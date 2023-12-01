@@ -1,0 +1,7 @@
+output/
+
+# IDE stuff
+.idea
+
+# Python stuff
+*.pyc

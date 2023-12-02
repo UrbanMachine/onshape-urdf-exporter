@@ -1,7 +1,5 @@
 import hashlib
 import os
-import sys
-from copy import copy
 from sys import exit
 
 import commentjson as json
@@ -95,7 +93,7 @@ def main():
         if partIsIgnore(justPart):
             stlFile = None
         else:
-            stlFile = prefix.replace("/", "_") + ".stl"
+            stlFile = sanitize_filename(prefix + ".stl")
             # shorten the configuration to a maximum number of chars to prevent errors. Necessary for standard parts like screws
             if len(part["configuration"]) > 40:
                 shortend_configuration = hashlib.md5(
@@ -113,7 +111,7 @@ def main():
             with open(config["outputDirectory"] + "/" + stlFile, "wb") as stream:
                 stream.write(stl)
 
-            stlMetadata = prefix.replace("/", "_") + ".part"
+            stlMetadata = sanitize_filename(prefix + ".part")
             with open(
                 config["outputDirectory"] + "/" + stlMetadata, "w", encoding="utf-8"
             ) as stream:
@@ -319,6 +317,30 @@ def main():
         for command in config["postImportCommands"]:
             print("* " + command)
             os.system(command)
+
+
+def sanitize_filename(value: str) -> str:
+    """Escapes characters that are invalid in filenames on Linux filesystems and NTFS.
+    The escape sequences mimic URL encoding.
+
+    Based on info from: https://stackoverflow.com/a/31976060
+    """
+    invalid_chars = [chr(i) for i in range(32)] + [
+        "<",
+        ">",
+        ":",
+        '"',
+        "/",
+        "\\",
+        "|",
+        "?",
+        "*",
+    ]
+
+    for char in invalid_chars:
+        value = value.replace(char, hex(ord(char)).replace("0x", "%"))
+
+    return value
 
 
 if __name__ == "__main__":

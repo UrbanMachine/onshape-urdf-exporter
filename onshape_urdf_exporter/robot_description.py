@@ -1,6 +1,5 @@
 import math
 import os
-import uuid
 from typing import TextIO
 from xml.etree import ElementTree as ET
 
@@ -26,16 +25,6 @@ def rotationMatrixToEulerAngles(R):
     return np.array([x, y, z])
 
 
-def origin(matrix):
-    urdf = '<origin xyz="%.20g %.20g %.20g" rpy="%.20g %.20g %.20g" />'
-    x = matrix[0, 3]
-    y = matrix[1, 3]
-    z = matrix[2, 3]
-    rpy = rotationMatrixToEulerAngles(matrix)
-
-    return urdf % (x, y, z, rpy[0], rpy[1], rpy[2])
-
-
 def add_origin_element(parent: ET.Element, matrix) -> None:
     # TODO: Make this not use '%' for formatting
     x = matrix[0, 3]
@@ -49,20 +38,7 @@ def add_origin_element(parent: ET.Element, matrix) -> None:
     ET.SubElement(parent, "origin", xyz=xyz_str, rpy=rpy_str)
 
 
-def pose(matrix, frame=""):
-    sdf = "<pose>%.20g %.20g %.20g %.20g %.20g %.20g</pose>"
-    x = matrix[0, 3]
-    y = matrix[1, 3]
-    z = matrix[2, 3]
-    rpy = rotationMatrixToEulerAngles(matrix)
-
-    if frame != "":
-        sdf = '<frame name="' + frame + '_frame">' + sdf + "</frame>"
-
-    return sdf % (x, y, z, rpy[0], rpy[1], rpy[2])
-
-
-class RobotDescription(object):
+class RobotDescription:
     def __init__(self, name):
         self.drawCollisions = False
         self.relative = True

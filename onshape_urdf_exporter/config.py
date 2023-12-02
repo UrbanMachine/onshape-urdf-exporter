@@ -139,16 +139,23 @@ except OSError:
     pass
 
 # Checking that MeshLab is present
-if config["simplifySTLs"]:
-    print(Style.BRIGHT + "* Checking MeshLab presence..." + Style.RESET_ALL)
-    if not os.path.exists("/usr/bin/meshlabserver") != 0:
+if config["simplifySTLs"] != "no":
+    print(Style.BRIGHT + "* Checking Open3D presence..." + Style.RESET_ALL)
+    try:
+        import open3d
+    except ImportError as ex:
         print(
             Fore.RED
-            + "No /usr/bin/meshlabserver, disabling STL simplification support"
+            + "Open3D is not installed. Disabling STL simplification support."
             + Style.RESET_ALL
         )
-        print(Fore.BLUE + "TIP: consider installing meshlab:" + Style.RESET_ALL)
-        print(Fore.BLUE + "sudo apt-get install meshlab" + Style.RESET_ALL)
+        print(Fore.RED + f"Error message: {ex}" + Style.RESET_ALL)
+        print(
+            Fore.BLUE
+            + "TIP: install this tool with the 'simplify_stls' extra dependencies to "
+            + "use this feature"
+            + Style.RESET_ALL
+        )
         config["simplifySTLs"] = False
 
 # Checking that versionId and workspaceId are not set on same time

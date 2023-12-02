@@ -1,11 +1,8 @@
-import math
-import os
-import shutil
-import subprocess
+import re
+from pathlib import Path
 
 import numpy as np
 import stl
-from colorama import Fore
 from stl import mesh
 
 
@@ -66,38 +63,37 @@ filter_script_mlx = """
 """
 
 
-def create_tmp_filter_file(filename="filter_file_tmp.mlx", reduction=0.9):
-    with open("/tmp/" + filename, "w", encoding="utf-8") as stream:
-        stream.write(filter_script_mlx.replace("%reduction%", str(reduction)))
-    return "/tmp/" + filename
+def simplify_stl(path: Path) -> None:
+    """Optimize a single STL file in-place, if it isn't already optimized."""
 
+    import open3d as o3d
 
-def reduce_faces(in_file, out_file, reduction=0.5):
-    filter_script_path = create_tmp_filter_file(reduction=reduction)
-    # Add input mesh
-    command = "meshlabserver -i " + in_file
-    # Add the filter script
-    command += " -s " + filter_script_path
-    # Add the output filename and output flags
-    command += " -o " + out_file
-    command += " > /tmp/meshlab.log 2>&1"
-    # Execute command
-    # print("Going to execute: " + command)
-    output = subprocess.check_output(command, shell=True)
-    # last_line = output.splitlines()[-1]
-    # print("Done:")
-    # print(in_file + " > " + out_file + ": " + last_line)
+    # Check if this file has already been optimized
+    stl_header = path.read_bytes()
+    matches = list(re.finditer(b"Open3D", stl_header))
+    if len(matches):
+        print(f"Skipping {str(path)}, already optimized")
+        return
 
+    print(f"Optimizing {str(path)}")
+    simple_mesh: o3d.geometry.TriangleMesh = o3d.io.read_triangle_mesh(str(path))
+    simple_mesh = simple_mesh.compute_triangle_normals()
+    simple_mesh = simple_mesh.simplify_vertex_clustering(
+        voxel_size=0.0025, contraction=o3d.geometry.SimplificationContraction.Quadric
+    )
+    simple_mesh = simple_mesh.merge_close_vertices(eps=0.001)
+    simple_mesh = simple_mesh.remove_duplicated_vertices()
+    simple_mesh = simple_mesh.remove_duplicated_triangles()
+    simple_mesh = simple_mesh.remove_degenerate_triangles()
+    simple_mesh = simple_mesh.remove_non_manifold_edges()
+    simple_mesh = simple_mesh.compute_triangle_normals()
+    simple_mesh = simple_mesh.compute_vertex_normals()
 
-def simplify_stl(stl_file, max_size=3):
-    size_M = os.path.getsize(stl_file) / (1024 * 1024)
-
-    if size_M > max_size:
-        print(
-            Fore.BLUE
-            + "+ "
-            + os.path.basename(stl_file)
-            + (" is %.2f M, running mesh simplification" % size_M)
-        )
-        shutil.copyfile(stl_file, "/tmp/simplify.stl")
-        reduce_faces("/tmp/simplify.stl", stl_file, max_size / size_M)
+    assert o3d.io.write_triangle_mesh(
+        str(path),
+        simple_mesh,
+        write_vertex_normals=False,
+        write_triangle_uvs=False,
+        compressed=False,
+        write_vertex_colors=False,
+    )

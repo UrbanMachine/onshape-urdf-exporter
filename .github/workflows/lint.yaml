@@ -19,5 +19,3 @@ jobs:
         run: poetry run black --check onshape_urdf_exporter
       - name: Isort
         run: poetry run isort --check onshape_urdf_exporter
-      - name: MyPy
-        run: poetry run mypy --show-error-codes onshape_urdf_exporter

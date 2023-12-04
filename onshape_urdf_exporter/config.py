@@ -11,7 +11,9 @@ config = {}
 # Loading configuration & parameters
 if len(sys.argv) <= 1:
     print(
-        Fore.RED + "ERROR: usage: onshape-urdf-exporter {robot_directory}" + Style.RESET_ALL
+        Fore.RED
+        + "ERROR: usage: onshape-urdf-exporter {robot_directory}"
+        + Style.RESET_ALL
     )
     print("Read documentation at https://onshape-to-robot.readthedocs.io/")
     exit("")

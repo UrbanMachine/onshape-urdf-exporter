@@ -1,6 +1,6 @@
 import math
 import os
-from typing import TextIO, Any
+from typing import Any, TextIO
 from xml.etree import ElementTree as ET
 
 import numpy as np
@@ -98,7 +98,11 @@ class RobotDescription:
         self._dynamics = []
 
     def add_link_dynamics(
-        self, matrix: npt.NDArray[np.float64], mass: float, com: npt.NDArray[np.float64], inertia: npt.NDArray[np.float64]
+        self,
+        matrix: npt.NDArray[np.float64],
+        mass: float,
+        com: npt.NDArray[np.float64],
+        inertia: npt.NDArray[np.float64],
     ) -> None:
         # Inertia
         I = np.matrix(np.reshape(inertia[:9], (3, 3)))
@@ -184,7 +188,9 @@ class RobotURDF(RobotDescription):
         )
         if visual_stl is not None:
             if visual_matrix is None or visual_color is None:
-                raise RuntimeError("visual_matrix, visual_stl, and visual_color must all be set if any one are set")
+                raise RuntimeError(
+                    "visual_matrix, visual_stl, and visual_color must all be set if any one are set"
+                )
 
             self.add_stl(
                 link,

@@ -1,0 +1,23 @@
+name: Lint
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Dependencies
+        run: poetry install --no-interaction
+      - name: Black
+        run: poetry run black --check onshape_urdf_exporter
+      - name: Isort
+        run: poetry run isort --check onshape_urdf_exporter
+      - name: MyPy
+        run: poetry run mypy --show-error-codes onshape_urdf_exporter

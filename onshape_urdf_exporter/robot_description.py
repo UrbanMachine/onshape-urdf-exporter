@@ -1,6 +1,6 @@
 import math
 import os
-from typing import TextIO, Any
+from typing import Any, TextIO
 from xml.etree import ElementTree as ET
 
 import numpy as np

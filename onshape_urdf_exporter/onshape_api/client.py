@@ -54,7 +54,7 @@ class Client:
     @staticmethod
     def get_cache_path() -> Path:
         """Return the path to the user cache."""
-        path = Path.home() / ".cache" / "onshape-to-robot"
+        path = Path.home() / ".cache" / "onshape-urdf-exporter"
         path.mkdir(parents=True, exist_ok=True)
         return path
 

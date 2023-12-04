@@ -8,7 +8,7 @@ readme = "README.md"
 packages = [{include = "onshape_urdf_exporter"}]
 
 [tool.poetry.scripts]
-onshape_urdf_exporter = "onshape_urdf_exporter.__main__:main"
+onshape-urdf-exporter = "onshape_urdf_exporter.__main__:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"

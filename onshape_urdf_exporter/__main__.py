@@ -27,19 +27,19 @@ def main():
             + Style.RESET_ALL
         )
         exit()
-    robot.drawCollisions = config["drawCollisions"]
-    robot.jointMaxEffort = config["jointMaxEffort"]
-    robot.mergeSTLs = config["mergeSTLs"]
-    robot.maxSTLSize = config["maxSTLSize"]
-    robot.simplifySTLs = config["simplifySTLs"]
-    robot.jointMaxVelocity = config["jointMaxVelocity"]
-    robot.noDynamics = config["noDynamics"]
-    robot.packageName = config["packageName"]
+    robot.draw_collisions = config["drawCollisions"]
+    robot.joint_max_effort = config["jointMaxEffort"]
+    robot.merge_stls = config["mergeSTLs"]
+    robot.max_stl_size = config["maxSTLSize"]
+    robot.simplify_stls = config["simplifySTLs"]
+    robot.joint_max_velocity = config["jointMaxVelocity"]
+    robot.no_dynamics = config["noDynamics"]
+    robot.package_name = config["packageName"]
     robot.addDummyBaseLink = config["addDummyBaseLink"]
-    robot.robotName = config["robotName"]
+    robot.robot_name = config["robotName"]
     robot.additionalXML = config["additionalXML"]
-    robot.useFixedLinks = config["useFixedLinks"]
-    robot.meshDir = config["outputDirectory"]
+    robot.use_fixed_links = config["useFixedLinks"]
+    robot.mesh_dir = config["outputDirectory"]
 
     def partIsIgnore(name):
         if config["whitelist"] is None:
@@ -190,7 +190,7 @@ def main():
         if robot.relative:
             pose = np.linalg.inv(matrix) * pose
 
-        robot.addPart(pose, stlFile, mass, com, inertia, color, prefix)
+        robot.add_part(pose, stlFile, mass, com, inertia, color, prefix)
 
     partNames = {}
 
@@ -260,7 +260,7 @@ def main():
 
                 if robot.relative:
                     frame = np.linalg.inv(matrix) * frame
-                robot.addFrame(name, frame)
+                robot.add_frame(name, frame)
 
         # Following the children in the tree, calling this function recursively
         k = 0
@@ -280,7 +280,7 @@ def main():
                 childMatrix = matrix
 
             subLink = buildRobot(child, childMatrix)
-            robot.addJoint(
+            robot.add_joint(
                 jointType,
                 link,
                 subLink,
@@ -294,8 +294,6 @@ def main():
 
     # Start building the robot
     buildRobot(tree, np.matrix(np.identity(4)))
-    robot.finalize()
-    # print(tree)
 
     print(
         "\n"

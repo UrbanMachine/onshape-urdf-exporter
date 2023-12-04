@@ -455,10 +455,7 @@ for occurrence in occurrences.values():
 
 # If a sub-assembly is suppressed, we also mark as suppressed the parts in this sub-assembly
 for occurrence in occurrences.values():
-    if (
-        "suppressed" in occurrence["instance"]
-        and not occurrence["instance"]["suppressed"]
-    ):
+    if not occurrence["instance"].get("suppressed", True):
         for k in range(len(occurrence["path"]) - 1):
             upper_path = tuple(occurrence["path"][0 : k + 1])
             if (

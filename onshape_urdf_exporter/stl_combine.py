@@ -2,6 +2,7 @@ import re
 from pathlib import Path
 
 import numpy as np
+import open3d as o3d
 import stl
 from stl import mesh
 
@@ -65,8 +66,6 @@ filter_script_mlx = """
 
 def simplify_stl(path: Path) -> None:
     """Optimize a single STL file in-place, if it isn't already optimized."""
-
-    import open3d as o3d
 
     # Check if this file has already been optimized
     stl_header = path.read_bytes()

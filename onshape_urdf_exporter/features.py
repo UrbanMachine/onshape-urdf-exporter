@@ -1,22 +1,24 @@
 import math
 
-from colorama import Back, Fore, Style
+from colorama import Fore, Style
+
+from .config_file import Configuration
 
 joint_features = {}
 configuration_parameters = {}
 
 
-def init(client, config, root, workspaceId, assemblyId):
+def init(client, config: Configuration, root, workspaceId, assemblyId):
     global configuration_parameters, joint_features
 
     # Load joint features to get limits later
-    if config["versionId"] == "":
+    if config.version_id == "":
         joint_features = client.get_features(
-            config["documentId"], workspaceId, assemblyId
+            config.document_id, workspaceId, assemblyId
         )
     else:
         joint_features = client.get_features(
-            config["documentId"], config["versionId"], assemblyId, type="v"
+            config.document_id, config.version_id, assemblyId, type="v"
         )
 
     # Retrieving root configuration parameters

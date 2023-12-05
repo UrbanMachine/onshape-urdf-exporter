@@ -6,6 +6,8 @@ from xml.etree import ElementTree as ET
 import numpy as np
 import numpy.typing as npt
 
+from .config_file import Configuration
+
 
 def rotation_matrix_to_euler_angles(
     r: npt.NDArray[np.float64],
@@ -39,18 +41,9 @@ def add_origin_element(parent: ET.Element, matrix: npt.NDArray[np.float64]) -> N
 
 
 class RobotDescription:
-    def __init__(self, name: str):
-        self.draw_collisions = False
+    def __init__(self, name: str, config: Configuration):
+        self.config = config
         self.relative = True
-        self.use_fixed_links = False
-        self.simplify_stls = "no"
-        self.joint_max_effort = 1
-        self.joint_max_velocity = 10
-        self.no_dynamics = False
-        self.package_name = ""
-        self.add_dummy_base_link = False
-        self.robot_name = name
-        self.mesh_dir = None
 
         self._color = np.array([0.0, 0.0, 0.0])
         self._color_mass = 0.0
@@ -59,22 +52,22 @@ class RobotDescription:
         self._dynamics: list[dict[str, Any]] = []
 
     def joint_max_effort_for(self, joint_name: str) -> float:
-        if isinstance(self.joint_max_effort, dict):
-            if joint_name in self.joint_max_effort:
-                return self.joint_max_effort[joint_name]
+        if isinstance(self.config.joint_max_effort, dict):
+            if joint_name in self.config.joint_max_effort:
+                return self.config.joint_max_effort[joint_name]
             else:
-                return self.joint_max_effort["default"]
+                return self.config.joint_max_effort["default"]
         else:
-            return self.joint_max_effort
+            return self.config.joint_max_effort
 
     def joint_max_velocity_for(self, joint_name: str) -> float:
-        if isinstance(self.joint_max_velocity, dict):
-            if joint_name in self.joint_max_velocity:
-                return self.joint_max_velocity[joint_name]
+        if isinstance(self.config.joint_max_velocity, dict):
+            if joint_name in self.config.joint_max_velocity:
+                return self.config.joint_max_velocity[joint_name]
             else:
-                return self.joint_max_velocity["default"]
+                return self.config.joint_max_velocity["default"]
         else:
-            return self.joint_max_velocity
+            return self.config.joint_max_velocity
 
     def reset_link(self) -> None:
         self._color = np.array([0.0, 0.0, 0.0])
@@ -128,10 +121,10 @@ class RobotDescription:
 
 
 class RobotURDF(RobotDescription):
-    def __init__(self, name: str):
-        super().__init__(name)
+    def __init__(self, name: str, config: Configuration):
+        super().__init__(name, config)
         self.ext = "urdf"
-        self.xml_root = ET.Element("robot", name=self.robot_name)
+        self.xml_root = ET.Element("robot", name=self.config.robot_name)
         self._active_link: ET.Element | None = None
 
     def add_dummy_link(
@@ -145,7 +138,7 @@ class RobotURDF(RobotDescription):
         inertial = ET.SubElement(link, "inertial")
         ET.SubElement(inertial, "origin", xyz="0 0 0", rpy="0 0 0")
         # XXX: We use a low mass because PyBullet consider mass 0 as world fixed
-        if self.no_dynamics:
+        if self.config.no_dynamics:
             ET.SubElement(inertial, "mass", value="0")
         else:
             ET.SubElement(inertial, "mass", value="1e-9")
@@ -198,7 +191,7 @@ class RobotURDF(RobotDescription):
         self._link_name = name
         self.reset_link()
 
-        if self.add_dummy_base_link:
+        if self.config.add_dummy_base_link:
             self.add_dummy_base_link_method(name)
             self.add_dummy_base_link = False
         self._active_link = ET.SubElement(self.xml_root, "link", name=name)
@@ -225,14 +218,14 @@ class RobotURDF(RobotDescription):
             izz="%.20g" % inertia[2, 2],
         )
 
-        if self.use_fixed_links:
+        if self.config.use_fixed_links:
             visual_elem = ET.SubElement(self._active_link, "visual")
             geometry = ET.SubElement(visual_elem, "geometry")
             ET.SubElement(geometry, "box", size="0 0 0")
 
         self._active_link = None
 
-        if self.use_fixed_links:
+        if self.config.use_fixed_links:
             n = 0
             for visual in self._visuals:
                 n += 1
@@ -263,7 +256,7 @@ class RobotURDF(RobotDescription):
         name: str,
         node: str = "visual",
     ) -> None:
-        stl_file = self.package_name.strip("/") + "/" + stl
+        stl_file = self.config.package_name.strip("/") + "/" + stl
 
         material_name = name + "_material"
 
@@ -294,10 +287,10 @@ class RobotURDF(RobotDescription):
             raise RuntimeError("Cannot call addPart before calling start_link")
 
         if stl is not None:
-            if not self.draw_collisions:
-                if self.use_fixed_links:
+            if not self.config.draw_collisions:
+                if self.config.use_fixed_links:
                     self._visuals.append(
-                        [matrix, self.package_name + stl.name, color]
+                        [matrix, self.config.package_name + stl.name, color]
                     )
                 else:
                     self.add_stl(
@@ -310,7 +303,7 @@ class RobotURDF(RobotDescription):
                     )
 
             entries = ["collision"]
-            if self.draw_collisions:
+            if self.config.draw_collisions:
                 entries.append("visual")
             for entry in entries:
                 self.add_stl(

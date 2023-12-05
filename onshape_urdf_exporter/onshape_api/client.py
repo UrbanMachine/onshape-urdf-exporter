@@ -34,9 +34,7 @@ class Client:
         - logging (bool, default=True): Turn logging on or off
     """
 
-    def __init__(
-        self, stack="https://cad.onshape.com", logging=True, creds="./config.json"
-    ):
+    def __init__(self, stack="https://cad.onshape.com", logging=True):
         """
         Instantiates a new Onshape client.
 
@@ -48,7 +46,7 @@ class Client:
         self._metadata_cache = {}
         self._massproperties_cache = {}
         self._stack = stack
-        self._api = Onshape(stack=stack, logging=logging, creds=creds)
+        self._api = Onshape(stack=stack, logging=logging)
         self.useCollisionsConfigurations = True
 
     @staticmethod

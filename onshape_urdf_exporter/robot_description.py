@@ -1,12 +1,10 @@
 import math
-import os
+from pathlib import Path
 from typing import Any, TextIO
 from xml.etree import ElementTree as ET
 
 import numpy as np
 import numpy.typing as npt
-
-from . import stl_combine
 
 
 def rotation_matrix_to_euler_angles(
@@ -29,7 +27,6 @@ def rotation_matrix_to_euler_angles(
 
 
 def add_origin_element(parent: ET.Element, matrix: npt.NDArray[np.float64]) -> None:
-    # TODO: Make this not use '%' for formatting
     x = matrix[0, 3]
     y = matrix[1, 3]
     z = matrix[2, 3]
@@ -58,7 +55,6 @@ class RobotDescription:
         self.robot_name = name
         self.mesh_dir = None
 
-        self._mesh = {"visual": None, "collision": None}
         self._color = np.array([0.0, 0.0, 0.0])
         self._color_mass = 0.0
         self._link_childs = 0
@@ -90,7 +86,6 @@ class RobotDescription:
             return self.joint_max_velocity
 
     def reset_link(self) -> None:
-        self._mesh = {"visual": None, "collision": None}
         self._color = np.array([0.0, 0.0, 0.0])
         self._color_mass = 0
         self._link_childs = 0
@@ -113,26 +108,6 @@ class RobotDescription:
         inertia = R * I * R.T
 
         self._dynamics.append({"mass": mass, "com": com, "inertia": inertia})
-
-    def merge_stl(
-        self,
-        stl: str,
-        matrix: npt.NDArray[np.float64],
-        color: npt.NDArray[np.float64],
-        mass: float,
-        node: str = "visual",
-    ) -> None:
-        if node == "visual":
-            self._color += np.array(color) * mass
-            self._color_mass += mass
-
-        m = stl_combine.load_mesh(stl)
-        stl_combine.apply_matrix(m, matrix)
-
-        if self._mesh[node] is None:
-            self._mesh[node] = m
-        else:
-            self._mesh[node] = stl_combine.combine_meshes(self._mesh[node], m)
 
     def link_dynamics(
         self,
@@ -189,7 +164,8 @@ class RobotURDF(RobotDescription):
         if visual_stl is not None:
             if visual_matrix is None or visual_color is None:
                 raise RuntimeError(
-                    "visual_matrix, visual_stl, and visual_color must all be set if any one are set"
+                    "visual_matrix, visual_stl, and visual_color must all be set if "
+                    "any one are set"
                 )
 
             self.add_stl(
@@ -241,29 +217,6 @@ class RobotURDF(RobotDescription):
             raise RuntimeError("start_link must be called before end_link")
 
         mass, com, inertia = self.link_dynamics()
-
-        for node in ["visual", "collision"]:
-            if self._mesh[node] is not None:
-                if self.mesh_dir is None:
-                    raise RuntimeError("mesh_dir must be set before saving meshes")
-
-                if node == "visual" and self._color_mass > 0:
-                    color = self._color / self._color_mass
-                else:
-                    color = np.array([0.5, 0.5, 0.5])
-
-                filename = self._link_name + "_" + node + ".stl"
-                stl_combine.save_mesh(self._mesh[node], self.mesh_dir + "/" + filename)
-                if self.should_simplify_stls(node):
-                    stl_combine.simplify_stl(self.mesh_dir + "/" + filename)
-                self.add_stl(
-                    self._active_link,
-                    np.identity(4),
-                    filename,
-                    color,
-                    self._link_name,
-                    node,
-                )
 
         inertial = ET.SubElement(self._active_link, "inertial")
         ET.SubElement(
@@ -339,7 +292,7 @@ class RobotURDF(RobotDescription):
     def add_part(
         self,
         matrix: npt.NDArray[np.float64],
-        stl: str | None,
+        stl: Path | None,
         mass: float,
         com: npt.NDArray[np.float64],
         inertia: npt.NDArray[np.float64],
@@ -353,15 +306,13 @@ class RobotURDF(RobotDescription):
             if not self.draw_collisions:
                 if self.use_fixed_links:
                     self._visuals.append(
-                        [matrix, self.package_name + os.path.basename(stl), color]
+                        [matrix, self.package_name + stl.name, color]
                     )
-                elif self.should_merge_stls("visual"):
-                    self.merge_stl(stl, matrix, color, mass)
                 else:
                     self.add_stl(
                         self._active_link,
                         matrix,
-                        os.path.basename(stl),
+                        stl.name,
                         color,
                         name,
                         "visual",
@@ -371,18 +322,14 @@ class RobotURDF(RobotDescription):
             if self.draw_collisions:
                 entries.append("visual")
             for entry in entries:
-                # We don't have pure shape, we use the mesh
-                if self.should_merge_stls(entry):
-                    self.merge_stl(stl, matrix, color, mass, entry)
-                else:
-                    self.add_stl(
-                        self._active_link,
-                        matrix,
-                        os.path.basename(stl),
-                        color,
-                        name,
-                        entry,
-                    )
+                self.add_stl(
+                    self._active_link,
+                    matrix,
+                    stl.name,
+                    color,
+                    name,
+                    entry,
+                )
 
         self.add_link_dynamics(matrix, mass, com, inertia)
 

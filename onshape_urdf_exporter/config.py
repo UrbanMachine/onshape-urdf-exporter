@@ -91,9 +91,7 @@ config["mergeSTLs"] = configGet(
     "mergeSTLs", "no", valuesList=["no", "visual", "collision", "all"]
 )
 config["maxSTLSize"] = configGet("maxSTLSize", 3)
-config["simplifySTLs"] = configGet(
-    "simplifySTLs", "no", valuesList=["no", "visual", "collision", "all"]
-)
+config["simplifySTLs"] = configGet("simplifySTLs", False)
 
 # Post-import commands to execute
 config["postImportCommands"] = configGet("postImportCommands", [])

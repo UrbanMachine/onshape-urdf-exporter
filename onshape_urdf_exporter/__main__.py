@@ -1,11 +1,13 @@
 import hashlib
 import os
+from pathlib import Path
 from sys import exit
 
 import commentjson as json
 import numpy as np
-from colorama import Back, Fore, Style
+from colorama import Fore, Style
 
+from .stl_utils import simplify_stl
 from .robot_description import RobotURDF
 
 partNames = {}
@@ -90,11 +92,15 @@ def main():
             + Style.RESET_ALL
         )
 
+        stl_file: Path | None
         if partIsIgnore(justPart):
-            stlFile = None
+            stl_file = None
         else:
-            stlFile = sanitize_filename(prefix + ".stl")
-            # shorten the configuration to a maximum number of chars to prevent errors. Necessary for standard parts like screws
+            stl_file = Path(config["outputDirectory"]) / sanitize_filename(
+                prefix + ".stl"
+            )
+            # shorten the configuration to a maximum number of chars to prevent errors.
+            # Necessary for standard parts like screws
             if len(part["configuration"]) > 40:
                 shortend_configuration = hashlib.md5(
                     part["configuration"].encode("utf-8")
@@ -108,16 +114,15 @@ def main():
                 part["partId"],
                 shortend_configuration,
             )
-            with open(config["outputDirectory"] + "/" + stlFile, "wb") as stream:
-                stream.write(stl)
+            stl_file.write_bytes(stl)
+            if config["simplifySTLs"]:
+                simplify_stl(stl_file)
 
             stlMetadata = sanitize_filename(prefix + ".part")
             with open(
                 config["outputDirectory"] + "/" + stlMetadata, "w", encoding="utf-8"
             ) as stream:
                 json.dump(part, stream, indent=4, sort_keys=True)
-
-            stlFile = config["outputDirectory"] + "/" + stlFile
 
         # Obtain metadatas about part to retrieve color
         if config["color"] is not None:
@@ -190,7 +195,7 @@ def main():
         if robot.relative:
             pose = np.linalg.inv(matrix) * pose
 
-        robot.add_part(pose, stlFile, mass, com, inertia, color, prefix)
+        robot.add_part(pose, stl_file, mass, com, inertia, color, prefix)
 
     partNames = {}
 

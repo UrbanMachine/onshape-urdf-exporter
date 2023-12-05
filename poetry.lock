@@ -1060,22 +1060,6 @@ files = [
 ]
 
 [[package]]
-name = "numpy-stl"
-version = "3.1.1"
-description = "Library to make reading, writing and modifying both binary and ascii STL files easy."
-category = "main"
-optional = false
-python-versions = ">3.6.0"
-files = [
-    {file = "numpy-stl-3.1.1.tar.gz", hash = "sha256:f78eea62c80938bf53ea914fa5b6c92f448f0eab5609e0e5a737dde039404334"},
-    {file = "numpy_stl-3.1.1-py3-none-any.whl", hash = "sha256:b0b7f4455c29d26d3dc0eed894f5b17c64e4019b056d0060be48f93680f6e6d3"},
-]
-
-[package.dependencies]
-numpy = "*"
-python-utils = ">=3.4.5"
-
-[[package]]
 name = "open3d"
 version = "0.16.0"
 description = ""
@@ -1360,26 +1344,6 @@ files = [
 
 [package.dependencies]
 six = ">=1.5"
-
-[[package]]
-name = "python-utils"
-version = "3.8.1"
-description = "Python Utils is a module with some convenient utilities not included with the standard Python install"
-category = "main"
-optional = false
-python-versions = ">3.8.0"
-files = [
-    {file = "python-utils-3.8.1.tar.gz", hash = "sha256:ec3a672465efb6c673845a43afcfafaa23d2594c24324a40ec18a0c59478dc0b"},
-    {file = "python_utils-3.8.1-py2.py3-none-any.whl", hash = "sha256:efdf31c8154667d7dc0317547c8e6d3b506c5d4b6e360e0c89662306262fc0ab"},
-]
-
-[package.dependencies]
-typing-extensions = ">3.10.0.2"
-
-[package.extras]
-docs = ["mock", "python-utils", "sphinx"]
-loguru = ["loguru"]
-tests = ["flake8", "loguru", "pytest", "pytest-asyncio", "pytest-cov", "pytest-mypy", "sphinx", "types-setuptools"]
 
 [[package]]
 name = "pytz"
@@ -1913,4 +1877,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "ba8c8b0aba6617f2eeb95cd27458379bf1d5e99cfa5e6e2194c9df037260f3f3"
+content-hash = "7294ba28a8c7d5d8486a6c61dc10e18daebbeea740e662c4eaceb84ef8baa200"

@@ -42,11 +42,8 @@ class RobotDescription:
     def __init__(self, name: str):
         self.draw_collisions = False
         self.relative = True
-        self.merge_stls = "no"
-        self.merge_stls_collisions = False
         self.use_fixed_links = False
         self.simplify_stls = "no"
-        self.max_stl_size = 3
         self.joint_max_effort = 1
         self.joint_max_velocity = 10
         self.no_dynamics = False
@@ -60,12 +57,6 @@ class RobotDescription:
         self._link_childs = 0
         self._visuals: list[list[Any]] = []
         self._dynamics: list[dict[str, Any]] = []
-
-    def should_merge_stls(self, node: str) -> bool:
-        return self.merge_stls == "all" or self.merge_stls == node
-
-    def should_simplify_stls(self, node: str) -> bool:
-        return self.simplify_stls == "all" or self.simplify_stls == node
 
     def joint_max_effort_for(self, joint_name: str) -> float:
         if isinstance(self.joint_max_effort, dict):

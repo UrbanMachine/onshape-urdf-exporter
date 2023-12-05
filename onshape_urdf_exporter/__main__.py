@@ -17,22 +17,10 @@ def main():
     # Loading configuration, collecting occurrences and building robot tree
     from .load_robot import client, config, frames, getOccurrence, occurrences, tree
 
-    # Creating robot for output
-    if config["outputFormat"] == "urdf":
-        robot = RobotURDF(config["robotName"])
-    else:
-        print(
-            Fore.RED
-            + "ERROR: Unknown output format: "
-            + config["outputFormat"]
-            + " (supported are urdf and sdf)"
-            + Style.RESET_ALL
-        )
-        exit()
+    robot = RobotURDF(config["robotName"])
+
     robot.draw_collisions = config["drawCollisions"]
     robot.joint_max_effort = config["jointMaxEffort"]
-    robot.merge_stls = config["mergeSTLs"]
-    robot.max_stl_size = config["maxSTLSize"]
     robot.simplify_stls = config["simplifySTLs"]
     robot.joint_max_velocity = config["jointMaxVelocity"]
     robot.no_dynamics = config["noDynamics"]

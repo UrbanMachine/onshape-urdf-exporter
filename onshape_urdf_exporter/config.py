@@ -66,7 +66,6 @@ config["workspaceId"] = configGet("workspaceId", "")
 config["drawFrames"] = configGet("drawFrames", False)
 config["drawCollisions"] = configGet("drawCollisions", False)
 config["assemblyName"] = configGet("assemblyName", False)
-config["outputFormat"] = configGet("outputFormat", "urdf")
 config["useFixedLinks"] = configGet("useFixedLinks", False)
 config["configuration"] = configGet("configuration", "default")
 config["ignoreLimits"] = configGet("ignoreLimits", False)
@@ -86,11 +85,7 @@ config["whitelist"] = configGet("whitelist", None, hasDefault=True)
 # Color override
 config["color"] = configGet("color", None, hasDefault=True)
 
-# STLs merge and simplification
-config["mergeSTLs"] = configGet(
-    "mergeSTLs", "no", valuesList=["no", "visual", "collision", "all"]
-)
-config["maxSTLSize"] = configGet("maxSTLSize", 3)
+# STL configuration
 config["simplifySTLs"] = configGet("simplifySTLs", False)
 
 # Post-import commands to execute
@@ -108,10 +103,7 @@ config["addDummyBaseLink"] = configGet("addDummyBaseLink", False)
 config["robotName"] = configGet("robotName", "onshape")
 
 # additional XML code to insert
-if config["outputFormat"] == "urdf":
-    additionalFileName = configGet("additionalUrdfFile", "")
-else:
-    additionalFileName = configGet("additionalSdfFile", "")
+additionalFileName = configGet("additionalUrdfFile", "")
 
 if additionalFileName == "":
     config["additionalXML"] = ""

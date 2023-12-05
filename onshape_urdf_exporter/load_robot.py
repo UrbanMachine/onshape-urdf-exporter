@@ -170,7 +170,7 @@ def assignParts(root, parent):
             occurrence["assignation"] = parent
 
 
-from .features import getLimits
+from .features import get_limits
 from .features import init as features_init
 
 features_init(client, config, root, workspaceId, assemblyId)
@@ -261,11 +261,11 @@ for feature in features:
                     jointType = "revolute"
 
                 if not config.ignore_limits:
-                    limits = getLimits(jointType, data["name"])
+                    limits = get_limits(jointType, data["name"])
             elif data["mateType"] == "SLIDER":
                 jointType = "prismatic"
                 if not config.ignore_limits:
-                    limits = getLimits(jointType, data["name"])
+                    limits = get_limits(jointType, data["name"])
             elif data["mateType"] == "FASTENED":
                 jointType = "fixed"
             else:

@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from colorama import Fore, Style
 from pydantic import BaseModel, ValidationError
@@ -13,7 +13,7 @@ class Configuration(BaseModel):
     workspace_id: str = ""
     draw_frames: bool = False
     draw_collisions: bool = False
-    assembly_name: str = False
+    assembly_name: str = ""
     use_fixed_links: bool = False
     configuration: str = "default"
     ignore_limits: bool = False
@@ -54,7 +54,7 @@ class Configuration(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
-    singleton: "Configuration" = None
+    singleton: Optional["Configuration"] = None
 
     @classmethod
     def from_file(cls, robot_directory: Path) -> "Configuration":

@@ -1,24 +1,33 @@
 import math
+import sys
+from typing import Any
 
 from colorama import Fore, Style
 
 from .config_file import Configuration
+from .onshape_api.client import Client
 
-joint_features = {}
-configuration_parameters = {}
+joint_features: dict[str, Any] = {}
+configuration_parameters: dict[str, str] = {}
 
 
-def init(client, config: Configuration, root, workspaceId, assemblyId):
+def init(
+    client: Client,
+    config: Configuration,
+    root: dict[str, str],
+    workspace_id: str,
+    assembly_id: str,
+) -> None:
     global configuration_parameters, joint_features
 
     # Load joint features to get limits later
     if config.version_id == "":
         joint_features = client.get_features(
-            config.document_id, workspaceId, assemblyId
+            config.document_id, workspace_id, assembly_id
         )
     else:
         joint_features = client.get_features(
-            config.document_id, config.version_id, assemblyId, type="v"
+            config.document_id, config.version_id, assembly_id, type="v"
         )
 
     # Retrieving root configuration parameters
@@ -30,7 +39,7 @@ def init(client, config: Configuration, root, workspaceId, assemblyId):
             configuration_parameters[kv[0]] = kv[1].replace("+", " ")
 
 
-def readExpression(expression):
+def read_expression(expression: str) -> float:
     # Expression can itself be a variable from configuration
     # XXX: This doesn't handle all expression, only values and variables
     if expression[0] == "#":
@@ -51,27 +60,27 @@ def readExpression(expression):
         return float(parts[0])
     else:
         print(Fore.RED + "Unknown unit: " + parts[1] + Style.RESET_ALL)
-        exit()
+        sys.exit(1)
 
 
-def readParameterValue(parameter, name):
+def read_parameter_value(parameter: dict[str, Any], name: str) -> float:
     # This is an expression
     if parameter["typeName"] == "BTMParameterNullableQuantity":
-        return readExpression(parameter["message"]["expression"])
+        return read_expression(parameter["message"]["expression"])
     if parameter["typeName"] == "BTMParameterConfigured":
         message = parameter["message"]
-        parameterValue = configuration_parameters[message["configurationParameterId"]]
+        parameter_value = configuration_parameters[message["configurationParameterId"]]
 
         for value in message["values"]:
             if value["typeName"] == "BTMConfiguredValueByBoolean":
-                booleanValue = parameterValue == "true"
-                if value["message"]["booleanValue"] == booleanValue:
-                    return readExpression(
+                boolean_value = parameter_value == "true"
+                if value["message"]["booleanValue"] == boolean_value:
+                    return read_expression(
                         value["message"]["value"]["message"]["expression"]
                     )
             elif value["typeName"] == "BTMConfiguredValueByEnum":
-                if value["message"]["enumValue"] == parameterValue:
-                    return readExpression(
+                if value["message"]["enumValue"] == parameter_value:
+                    return read_expression(
                         value["message"]["value"]["message"]["expression"]
                     )
             else:
@@ -83,9 +92,10 @@ def readParameterValue(parameter, name):
                     + value["typeName"]
                     + Style.RESET_ALL
                 )
-                exit()
+                sys.exit(1)
 
         print(Fore.RED + "Could not find the value for " + name + Style.RESET_ALL)
+        sys.exit(1)
     else:
         print(
             Fore.RED
@@ -95,43 +105,41 @@ def readParameterValue(parameter, name):
             + parameter["typeName"]
             + Style.RESET_ALL
         )
-        exit()
+        sys.exit(1)
 
 
-# Gets the limits of a given joint
-
-
-def getLimits(jointType, name):
+def get_limits(joint_type: str, name: str) -> tuple[float, float] | None:
+    """Gets the limits of a given joint"""
     enabled = False
-    minimum, maximum = 0, 0
+    minimum, maximum = 0.0, 0.0
     for feature in joint_features["features"]:
-        # Find coresponding joint
+        # Find corresponding joint
         if name == feature["message"]["name"]:
             # Find min and max values
             for parameter in feature["message"]["parameters"]:
                 if parameter["message"]["parameterId"] == "limitsEnabled":
                     enabled = parameter["message"]["value"]
 
-                if jointType == "revolute":
+                if joint_type == "revolute":
                     if parameter["message"]["parameterId"] == "limitAxialZMin":
-                        minimum = readParameterValue(parameter, name)
+                        minimum = read_parameter_value(parameter, name)
                     if parameter["message"]["parameterId"] == "limitAxialZMax":
-                        maximum = readParameterValue(parameter, name)
-                elif jointType == "prismatic":
+                        maximum = read_parameter_value(parameter, name)
+                elif joint_type == "prismatic":
                     if parameter["message"]["parameterId"] == "limitZMin":
-                        minimum = readParameterValue(parameter, name)
+                        minimum = read_parameter_value(parameter, name)
                     if parameter["message"]["parameterId"] == "limitZMax":
-                        maximum = readParameterValue(parameter, name)
+                        maximum = read_parameter_value(parameter, name)
     if enabled:
-        return (minimum, maximum)
+        return minimum, maximum
     else:
-        if jointType != "continuous":
+        if joint_type != "continuous":
             print(
                 Fore.YELLOW
                 + "WARNING: joint "
                 + name
                 + " of type "
-                + jointType
+                + joint_type
                 + " has no limits "
                 + Style.RESET_ALL
             )

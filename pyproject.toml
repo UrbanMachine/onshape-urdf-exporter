@@ -18,6 +18,8 @@ colorama = "^0.4.6"
 commentjson = "^0.9.0"
 # Poetry can't figure out dependencies for Open3D 0.17.x
 open3d = "0.16.0"
+pydantic = "^2.5.2"
+pydantic-yaml = "^1.2.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.11.0"

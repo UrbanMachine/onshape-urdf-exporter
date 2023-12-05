@@ -17,7 +17,7 @@ from urllib.parse import parse_qs, urlparse
 
 import commentjson as json
 import requests
-from colorama import Back, Fore, Style
+from colorama import Fore, Style
 
 from . import utils
 
@@ -34,7 +34,7 @@ class Onshape:
         - logging (bool, default=True): Turn logging on or off
     """
 
-    def __init__(self, stack, creds="./config.json", logging=True):
+    def __init__(self, stack, logging=True):
         """
         Instantiates an instance of the Onshape class. Reads credentials from a JSON file
         of this format:
@@ -54,69 +54,44 @@ class Onshape:
             - stack (str): Base URL
             - creds (str, default='./config.json'): Credentials location
         """
-
-        if not os.path.isfile(creds):
-            raise IOError("%s is not a file" % creds)
-
         self._logging = logging
 
-        with open(creds, "r", encoding="utf-8") as stream:
-            try:
-                config = json.load(stream)
-            except TypeError as ex:
-                raise ValueError("%s is not valid json" % creds) from ex
+        self._url = os.getenv("ONSHAPE_API")
+        self._access_key = os.getenv("ONSHAPE_ACCESS_KEY")
+        self._secret_key = os.getenv("ONSHAPE_SECRET_KEY")
 
-        try:
-            self._url = config["onshape_api"]
-            self._access_key = config["onshape_access_key"].encode("utf-8")
-            self._secret_key = config["onshape_secret_key"].encode("utf-8")
-        except KeyError:
-            self._url = os.getenv("ONSHAPE_API")
-            self._access_key = os.getenv("ONSHAPE_ACCESS_KEY")
-            self._secret_key = os.getenv("ONSHAPE_SECRET_KEY")
+        if self._url is None or self._access_key is None or self._secret_key is None:
+            print(
+                Fore.RED + "ERROR: No OnShape API access key are set" + Style.RESET_ALL
+            )
+            print()
+            print(
+                Fore.BLUE
+                + "TIP: Connect to https://dev-portal.onshape.com/keys, and edit your .bashrc file:"
+                + Style.RESET_ALL
+            )
+            print(
+                Fore.BLUE
+                + "export ONSHAPE_API=https://cad.onshape.com"
+                + Style.RESET_ALL
+            )
+            print(
+                Fore.BLUE
+                + "export ONSHAPE_ACCESS_KEY=Your_Access_Key"
+                + Style.RESET_ALL
+            )
+            print(
+                Fore.BLUE
+                + "export ONSHAPE_SECRET_KEY=Your_Secret_Key"
+                + Style.RESET_ALL
+            )
+            exit(1)
 
-            if (
-                self._url is None
-                or self._access_key is None
-                or self._secret_key is None
-            ):
-                print(
-                    Fore.RED
-                    + "ERROR: No OnShape API access key are set"
-                    + Style.RESET_ALL
-                )
-                print()
-                print(
-                    Fore.BLUE
-                    + "TIP: Connect to https://dev-portal.onshape.com/keys, and edit your .bashrc file:"
-                    + Style.RESET_ALL
-                )
-                print(
-                    Fore.BLUE
-                    + "export ONSHAPE_API=https://cad.onshape.com"
-                    + Style.RESET_ALL
-                )
-                print(
-                    Fore.BLUE
-                    + "export ONSHAPE_ACCESS_KEY=Your_Access_Key"
-                    + Style.RESET_ALL
-                )
-                print(
-                    Fore.BLUE
-                    + "export ONSHAPE_SECRET_KEY=Your_Secret_Key"
-                    + Style.RESET_ALL
-                )
-                exit(1)
+        self._access_key = self._access_key.encode("utf-8")
+        self._secret_key = self._secret_key.encode("utf-8")
 
-            self._access_key = self._access_key.encode("utf-8")
-            self._secret_key = self._secret_key.encode("utf-8")
-
-            if (
-                self._url is None
-                or self._access_key is None
-                or self._secret_key is None
-            ):
-                exit("No key in config.json, and environment variables not set")
+        if self._url is None or self._access_key is None or self._secret_key is None:
+            exit("No key in config.json, and environment variables not set")
 
         if self._logging:
             utils.log(

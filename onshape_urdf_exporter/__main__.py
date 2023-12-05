@@ -1,41 +1,42 @@
 import hashlib
 import os
+from argparse import ArgumentParser
 from pathlib import Path
-from sys import exit
 
 import commentjson as json
 import numpy as np
 from colorama import Fore, Style
 
-from .stl_utils import simplify_stl
+from .config_file import Configuration
 from .robot_description import RobotURDF
+from .stl_utils import simplify_stl
 
 partNames = {}
 
 
 def main():
+    parser = ArgumentParser(
+        description="Exports an OnShape assembly to a URDF file with STL meshes"
+    )
+    parser.add_argument(
+        "robot_directory",
+        type=Path,
+        help="A directory containing the config.yaml",
+    )
+    args = parser.parse_args()
+
+    config = Configuration.from_file(args.robot_directory)
+
     # Loading configuration, collecting occurrences and building robot tree
-    from .load_robot import client, config, frames, getOccurrence, occurrences, tree
+    from .load_robot import client, frames, getOccurrence, occurrences, tree
 
-    robot = RobotURDF(config["robotName"])
-
-    robot.draw_collisions = config["drawCollisions"]
-    robot.joint_max_effort = config["jointMaxEffort"]
-    robot.simplify_stls = config["simplifySTLs"]
-    robot.joint_max_velocity = config["jointMaxVelocity"]
-    robot.no_dynamics = config["noDynamics"]
-    robot.package_name = config["packageName"]
-    robot.addDummyBaseLink = config["addDummyBaseLink"]
-    robot.robot_name = config["robotName"]
-    robot.additionalXML = config["additionalXML"]
-    robot.use_fixed_links = config["useFixedLinks"]
-    robot.mesh_dir = config["outputDirectory"]
+    robot = RobotURDF(config.robot_name, config)
 
     def partIsIgnore(name):
-        if config["whitelist"] is None:
-            return name in config["ignore"]
+        if config.whitelist is None:
+            return name in config.ignore
         else:
-            return name not in config["whitelist"]
+            return name not in config.whitelist
 
     # Adds a part to the current robot link
 
@@ -84,9 +85,7 @@ def main():
         if partIsIgnore(justPart):
             stl_file = None
         else:
-            stl_file = Path(config["outputDirectory"]) / sanitize_filename(
-                prefix + ".stl"
-            )
+            stl_file = args.robot_directory / sanitize_filename(prefix + ".stl")
             # shorten the configuration to a maximum number of chars to prevent errors.
             # Necessary for standard parts like screws
             if len(part["configuration"]) > 40:
@@ -103,18 +102,18 @@ def main():
                 shortend_configuration,
             )
             stl_file.write_bytes(stl)
-            if config["simplifySTLs"]:
+            if config.simplify_stls:
                 simplify_stl(stl_file)
 
             stlMetadata = sanitize_filename(prefix + ".part")
             with open(
-                config["outputDirectory"] + "/" + stlMetadata, "w", encoding="utf-8"
+                args.robot_directory / stlMetadata, "w", encoding="utf-8"
             ) as stream:
                 json.dump(part, stream, indent=4, sort_keys=True)
 
         # Obtain metadatas about part to retrieve color
-        if config["color"] is not None:
-            color = config["color"]
+        if config.color is not None:
+            color = config.color
         else:
             metadata = client.part_get_metadata(
                 part["documentId"],
@@ -137,13 +136,13 @@ def main():
                     color = np.array([rgb["red"], rgb["green"], rgb["blue"]]) / 255.0
 
         # Obtain mass properties about that part
-        if config["noDynamics"]:
+        if config.no_dynamics:
             mass = 0
             com = [0] * 3
             inertia = [0] * 12
         else:
-            if prefix in config["dynamicsOverride"]:
-                entry = config["dynamicsOverride"][prefix]
+            if prefix in config.dynamics_override:
+                entry = config.dynamics_override[prefix]
                 mass = entry["mass"]
                 com = entry["com"]
                 inertia = entry["inertia"]
@@ -297,15 +296,15 @@ def main():
         + Style.RESET_ALL
     )
     with open(
-        config["outputDirectory"] + "/robot." + robot.ext, "w", encoding="utf-8"
+        args.robot_directory / f"robot.{robot.ext}", "w", encoding="utf-8"
     ) as stream:
         robot.write_to(stream)
 
-    if len(config["postImportCommands"]):
+    if len(config.post_import_commands):
         print(
             "\n" + Style.BRIGHT + "* Executing post-import commands" + Style.RESET_ALL
         )
-        for command in config["postImportCommands"]:
+        for command in config.post_import_commands:
             print("* " + command)
             os.system(command)
 

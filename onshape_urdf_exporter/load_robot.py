@@ -1,42 +1,44 @@
-import math
-import uuid
 from collections import defaultdict
 from sys import exit
 
 import numpy as np
-from colorama import Back, Fore, Style
+from colorama import Fore, Style
 
-from .config import config, configFile
+from .config_file import Configuration
 from .onshape_api.client import Client
+
+config = Configuration.singleton
+if config is None:
+    raise RuntimeError("Configuration has not been loaded yet")
 
 # OnShape API client
 workspaceId = None
-client = Client(logging=False, creds=configFile)
-client.useCollisionsConfigurations = config["useCollisionsConfigurations"]
+client = Client(logging=False)
+client.useCollisionsConfigurations = config.use_collisions_configurations
 
 # If a versionId is provided, it will be used, else the main workspace is retrieved
-if config["versionId"] != "":
+if config.version_id != "":
     print(
         "\n"
         + Style.BRIGHT
         + "* Using configuration version ID "
-        + config["versionId"]
+        + config.version_id
         + " ..."
         + Style.RESET_ALL
     )
-elif config["workspaceId"] != "":
+elif config.workspace_id != "":
     print(
         "\n"
         + Style.BRIGHT
         + "* Using configuration workspace ID "
-        + config["workspaceId"]
+        + config.workspace_id
         + " ..."
         + Style.RESET_ALL
     )
-    workspaceId = config["workspaceId"]
+    workspaceId = config.workspace_id
 else:
     print("\n" + Style.BRIGHT + "* Retrieving workspace ID ..." + Style.RESET_ALL)
-    document = client.get_document(config["documentId"]).json()
+    document = client.get_document(config.document_id).json()
     workspaceId = document["defaultWorkspace"]["id"]
     print(Fore.GREEN + "+ Using workspace id: " + workspaceId + Style.RESET_ALL)
 
@@ -47,17 +49,15 @@ print(
     + "* Retrieving elements in the document, searching for the assembly..."
     + Style.RESET_ALL
 )
-if config["versionId"] != "":
-    elements = client.list_elements(
-        config["documentId"], config["versionId"], "v"
-    ).json()
+if config.version_id != "":
+    elements = client.list_elements(config.document_id, config.version_id, "v").json()
 else:
-    elements = client.list_elements(config["documentId"], workspaceId).json()
+    elements = client.list_elements(config.document_id, workspaceId).json()
 assemblyId = None
 assemblyName = ""
 for element in elements:
     if element["type"] == "Assembly" and (
-        config["assemblyName"] is False or element["name"] == config["assemblyName"]
+        config.assembly_name is False or element["name"] == config.assembly_name
     ):
         print(
             Fore.GREEN
@@ -87,20 +87,20 @@ print(
     + assemblyId
     + Style.RESET_ALL
 )
-if config["versionId"] != "":
+if config.version_id != "":
     assembly = client.get_assembly(
-        config["documentId"],
-        config["versionId"],
+        config.document_id,
+        config.version_id,
         assemblyId,
         "v",
-        configuration=config["configuration"],
+        configuration=config.configuration,
     )
 else:
     assembly = client.get_assembly(
-        config["documentId"],
+        config.document_id,
         workspaceId,
         assemblyId,
-        configuration=config["configuration"],
+        configuration=config.configuration,
     )
 
 root = assembly["rootAssembly"]
@@ -260,11 +260,11 @@ for feature in features:
                 else:
                     jointType = "revolute"
 
-                if not config["ignoreLimits"]:
+                if not config.ignore_limits:
                     limits = getLimits(jointType, data["name"])
             elif data["mateType"] == "SLIDER":
                 jointType = "prismatic"
-                if not config["ignoreLimits"]:
+                if not config.ignore_limits:
                     limits = getLimits(jointType, data["name"])
             elif data["mateType"] == "FASTENED":
                 jointType = "fixed"
@@ -402,7 +402,7 @@ while changed:
                     assignParts(
                         occurrenceB,
                         {True: assignations[occurrenceA], False: "frame"}[
-                            config["drawFrames"]
+                            config.draw_frames
                         ],
                     )
                 else:
@@ -412,7 +412,7 @@ while changed:
                     assignParts(
                         occurrenceA,
                         {True: assignations[occurrenceB], False: "frame"}[
-                            config["drawFrames"]
+                            config.draw_frames
                         ],
                     )
                 changed = True

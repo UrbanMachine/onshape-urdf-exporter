@@ -254,20 +254,6 @@ files = [
 ]
 
 [[package]]
-name = "commentjson"
-version = "0.9.0"
-description = "Add Python and JavaScript style comments in your JSON files."
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "commentjson-0.9.0.tar.gz", hash = "sha256:42f9f231d97d93aff3286a4dc0de39bfd91ae823d1d9eba9fa901fe0c7113dd4"},
-]
-
-[package.dependencies]
-lark-parser = ">=0.7.1,<0.8.0"
-
-[[package]]
 name = "configargparse"
 version = "1.7"
 description = "A drop-in replacement for argparse that allows options to also be set via config files and/or environment variables."
@@ -800,17 +786,6 @@ files = [
     {file = "kiwisolver-1.4.5-pp39-pypy39_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:210ef2c3a1f03272649aff1ef992df2e724748918c4bc2d5a90352849eb40bea"},
     {file = "kiwisolver-1.4.5-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:11d011a7574eb3b82bcc9c1a1d35c1d7075677fdd15de527d91b46bd35e935ee"},
     {file = "kiwisolver-1.4.5.tar.gz", hash = "sha256:e57e563a57fb22a142da34f38acc2fc1a5c864bc29ca1517a88abc963e60d6ec"},
-]
-
-[[package]]
-name = "lark-parser"
-version = "0.7.8"
-description = "a modern parsing library"
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "lark-parser-0.7.8.tar.gz", hash = "sha256:26215ebb157e6fb2ee74319aa4445b9f3b7e456e26be215ce19fdaaa901c20a4"},
 ]
 
 [[package]]
@@ -2128,4 +2103,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "ae620df8efc0c3462d48ac84fc004a38a5c5019f9f37f6b2336659a53133c0a4"
+content-hash = "95be13c81d4eef721048876e3afbb1b10bc6f135a6cfb2a5b6e0bfade49db87b"

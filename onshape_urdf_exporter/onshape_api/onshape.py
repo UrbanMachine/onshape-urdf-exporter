@@ -9,13 +9,13 @@ import base64
 import datetime
 import hashlib
 import hmac
+import json
 import os
 import random
 import string
 import urllib
 from urllib.parse import parse_qs, urlparse
 
-import commentjson as json
 import requests
 from colorama import Fore, Style
 
@@ -25,34 +25,11 @@ __all__ = ["Onshape"]
 
 
 class Onshape:
-    """
-    Provides access to the Onshape REST API.
-
-    Attributes:
-        - stack (str): Base URL
-        - creds (str, default='./creds.json'): Credentials location
-        - logging (bool, default=True): Turn logging on or off
-    """
+    """Provides access to the Onshape REST API"""
 
     def __init__(self, stack, logging=True):
         """
-        Instantiates an instance of the Onshape class. Reads credentials from a JSON file
-        of this format:
-
-            {
-                "http://cad.onshape.com": {
-                    "access_key": "YOUR KEY HERE",
-                    "secret_key": "YOUR KEY HERE"
-                },
-                etc... add new object for each stack to test on
-            }
-
-        The creds.json file should be stored in the root project folder; optionally,
-        you can specify the location of a different file.
-
-        Args:
-            - stack (str): Base URL
-            - creds (str, default='./config.json'): Credentials location
+        :param stack: Base API URL
         """
         self._logging = logging
 
@@ -89,9 +66,6 @@ class Onshape:
 
         self._access_key = self._access_key.encode("utf-8")
         self._secret_key = self._secret_key.encode("utf-8")
-
-        if self._url is None or self._access_key is None or self._secret_key is None:
-            exit("No key in config.json, and environment variables not set")
 
         if self._logging:
             utils.log(

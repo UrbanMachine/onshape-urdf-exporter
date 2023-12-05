@@ -1,9 +1,9 @@
 import hashlib
+import json
 import os
 from argparse import ArgumentParser
 from pathlib import Path
 
-import commentjson as json
 import numpy as np
 from colorama import Fore, Style
 

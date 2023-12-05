@@ -6,13 +6,12 @@ Convenience functions for working with the Onshape API
 """
 
 import hashlib
+import json
 import mimetypes
 import os
 import random
 import string
 from pathlib import Path
-
-import commentjson as json
 
 from .onshape import Onshape
 

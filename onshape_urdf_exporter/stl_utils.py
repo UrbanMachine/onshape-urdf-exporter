@@ -30,4 +30,9 @@ def simplify_stl(path: Path) -> None:
         write_vertex_colors=False,
     )
     if not success:
-        print(f"{Fore.YELLOW}WARNING: Failed to simplify STL {path}{Style.RESET_ALL}")
+        print(
+            f"{Fore.YELLOW}"
+            f"WARNING: Failed to simplify STL {path}. See above logs for "
+            f"clues as to why."
+            f"{Style.RESET_ALL}"
+        )

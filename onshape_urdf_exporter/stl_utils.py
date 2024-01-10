@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import open3d as o3d
+from colorama import Fore, Style
 
 
 def simplify_stl(path: Path) -> None:
@@ -20,7 +21,7 @@ def simplify_stl(path: Path) -> None:
     simple_mesh = simple_mesh.compute_triangle_normals()
     simple_mesh = simple_mesh.compute_vertex_normals()
 
-    assert o3d.io.write_triangle_mesh(
+    success = o3d.io.write_triangle_mesh(
         str(path),
         simple_mesh,
         write_vertex_normals=False,
@@ -28,3 +29,10 @@ def simplify_stl(path: Path) -> None:
         compressed=False,
         write_vertex_colors=False,
     )
+    if not success:
+        print(
+            f"{Fore.YELLOW}"
+            f"WARNING: Failed to simplify STL {path}. See above logs for "
+            f"clues as to why."
+            f"{Style.RESET_ALL}"
+        )

@@ -254,9 +254,13 @@ class Onshape:
                 print(
                     "HINT: Check that your access rights are correct, and that the clock on your computer is set correctly"
                 )
-            exit()
+                raise ConnectionRefusedError(
+                    "HINT: Check that your access rights are correct, and that the clock on your computer is set correctly"
+                )
             if self._logging:
                 utils.log("request failed, details: " + res.text, level=1)
+            exit()
+
         else:
             if self._logging:
                 utils.log("request succeeded, details: " + res.text)

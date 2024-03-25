@@ -94,13 +94,23 @@ def main():
                 ).hexdigest()
             else:
                 shortend_configuration = part["configuration"]
-            stl = client.part_studio_stl_m(
-                part["documentId"],
-                part["documentMicroversion"],
-                part["elementId"],
-                part["partId"],
-                shortend_configuration,
-            )
+
+            try:
+                stl = client.part_studio_stl_m(
+                    part["documentId"],
+                    part["documentMicroversion"],
+                    part["elementId"],
+                    part["partId"],
+                    shortend_configuration,
+                )
+            except ConnectionRefusedError as e:
+                print(
+                    Fore.RED
+                    + f"Skipping part {part['name']}, because of connection error: {e}"
+                    + Style.RESET_ALL
+                )
+                return
+
             stl_file.write_bytes(stl)
             if config.simplify_stls:
                 simplify_stl(stl_file)

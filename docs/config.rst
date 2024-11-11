@@ -1,4 +1,4 @@
-Export your own robot (writing config.json)
+Export your own robot (writing config.yaml)
 ===========================================
 
 To export your own robot, first create a directory:
@@ -31,14 +31,14 @@ Once this is done, if you properly :doc:`installed and setup your API key <insta
 Here is the full list of possible entries for this configuration.
 
 ``document_id``
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 This is the Onshape ID of the document to be imported. It can be found in the Onshape URL,
 just after ``document/``.
 
 
 ``assembly_name``
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
 *optional*
 
@@ -46,7 +46,7 @@ This can be used to specify the name of the assembly (in the Onshape document) t
 is used, the first assembly found will be used.
 
 ``workspace_id``
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 *optional, no default*
 
@@ -55,7 +55,7 @@ ofr your robot without making a version.
 The workspace ID can be found in URL, after the ``/w/`` part when selecting a specific version in the tree.
 
 ``version_id``
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 
 *optional, no default*
 
@@ -76,7 +76,7 @@ This is the robot configuration string that will be passed to Onshape. An exampl
     left_motor_angle=3+radian;enable_yaw=true
 
 ``draw_frames``
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 *optional, default: false*
 
@@ -85,7 +85,7 @@ by default excluded from the output description (a dummy link is kept instead). 
 keep it instead.
 
 ``draw_collisions``
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 *optional, default: false*
 
@@ -111,7 +111,7 @@ See :ref:`example <example-config>` below.
 
 
 ``no_dynamics``
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 *optional, default: false*
 
@@ -142,7 +142,7 @@ This can be used as the opposed of ``ignore``, to import only some items listed 
 Can override the color for parts (should be an array: ``[r, g, b]`` with numbers from 0 to 1)
 
 ``package_name``
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 *optional*
 

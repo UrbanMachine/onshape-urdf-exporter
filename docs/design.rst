@@ -63,4 +63,3 @@ Thus, they are always revolving around the z axis, or translating along the z ax
 
 .. image:: _static/img/zaxis.png
     :align: center
-    :

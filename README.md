@@ -1,5 +1,7 @@
 # OnShape URDF Exporter
 
+[Read the docs here](https://onshape-urdf-exporter.readthedocs.io/en/latest/)
+
 Exports OnShape assemblies into URDF files with STL meshes. This is based off
 of the URDF exporting functionality provided by onshape-to-robot, but with
 some improvements:

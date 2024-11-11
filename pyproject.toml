@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "onshape-urdf-exporter"
-version = "0.1.0"
+version = "1.0.0"
 description = "Exports an OnShape assembly to a URDF file with STL meshes"
 authors = ["Urban Machine <info@urbanmachine.build>"]
 license = "MIT"

@@ -1,11 +1,6 @@
 Onshape URDF Exporter Documentation
 ===================================
 
-.. image:: _static/img/main.png
-
-Introduction
-~~~~~~~~~~~~
-
 Onshape URDF Exporter is a tool that that exports Onshape robot designs as
 URDF files. These files can be used with tools like RViz or Gazebo to
 calculate inverse kinematics, run physics simulations, and provide
